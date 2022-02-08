@@ -13,7 +13,7 @@ const { User,signupJoi,loginJoi,profileJoi } = require("../models/User")
 ///Signup 
 router.post("/signup",validateBody(signupJoi), async (req, res) => {
     try {
-      const { firstName, lastName,claass , email, password } = req.body
+      const { firstName, lastName,claass , email, password, avatar } = req.body
       const userFound = await User.findOne({ email })
       if (userFound) return res.status(404).send("User not found")
   
@@ -27,7 +27,7 @@ router.post("/signup",validateBody(signupJoi), async (req, res) => {
         email,
         password: hash,
         claass,
-        // avatar,
+        avatar,
        
       })
       await user.save()
@@ -64,7 +64,7 @@ router.post("/login", validateBody(loginJoi), async (req, res) => {
 //   //put companion
 router.put("/profile/:id",checkId, checkUser, validateBody(profileJoi), async (req, res) => {
     try {
-        const { firstName, lastName,claass, email, password } = req.body
+        const { firstName, lastName,claass, email, password, avatar } = req.body
 
         let hash
       if(password){
@@ -75,7 +75,7 @@ router.put("/profile/:id",checkId, checkUser, validateBody(profileJoi), async (r
      
         const user = await User.findByIdAndUpdate(
         req.params.id,
-        { $set: { firstName, lastName,claass, email, password:hash } },
+        { $set: { firstName, lastName,claass, email, password:hash, avatar } },
         { new: true }
       )
   
