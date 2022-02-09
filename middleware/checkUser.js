@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
 const { User } = require("../models/User")
 
-const checkDietitian = async (req, res, next) => {
+const checkUser = async (req, res, next) => {
   try {
     const token = req.header("Authorization")
     if (!token) return res.status(401).send("token is missing")
@@ -21,4 +21,4 @@ const checkDietitian = async (req, res, next) => {
     res.status(500).send(error.message)
   }
 }
-module.exports = checkDietitian
+module.exports = checkUser

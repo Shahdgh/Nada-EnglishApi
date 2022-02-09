@@ -9,14 +9,18 @@ const { User,signupJoi,loginJoi,profileJoi } = require("../models/User")
 
 
 
-
+/////get User
+router.get("/",  async (req, res) => {
+  const user = await User.find().select("-__v -password")
+  res.json(user)
+})
 ///Signup 
 router.post("/signup",validateBody(signupJoi), async (req, res) => {
     try {
       const { firstName, lastName,claass , email, password, avatar } = req.body
       const userFound = await User.findOne({ email })
-      if (userFound) return res.status(404).send("User not found")
-  
+      if (userFound) return res.status(400).send("Patient already registered")
+
       
       const salt = await bcrypt.genSalt(10)
       const hash = await bcrypt.hash(password, salt)
