@@ -19,7 +19,7 @@ router.post("/signup",validateBody(signupJoi), async (req, res) => {
     try {
       const { firstName, lastName,claass , email, password, avatar } = req.body
       const userFound = await User.findOne({ email })
-      if (userFound) return res.status(400).send("Patient already registered")
+      if (userFound) return res.status(400).send("User already registered")
 
       
       const salt = await bcrypt.genSalt(10)
