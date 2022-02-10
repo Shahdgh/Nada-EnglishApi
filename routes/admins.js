@@ -9,7 +9,7 @@ const checkId = require("../middleware/checkId")
 const { Word ,wordAddJoi,wordEditJoi} = require("../models/Word")
 const { Listening,listeningAddJoi } = require("../models/Listening")
 const { Reading,readingAddJoi } = require("../models/Reading")
-const { Speaking,speakingAddJoi } = require("../models/Speaking")
+const { Speaking,speakingAddJoi,speakingEditJoi } = require("../models/Speaking")
 
 ///Signup admin
 router.post("/signup", validateBody(signupJoi), async (req, res) => {
@@ -198,16 +198,17 @@ router.delete("/listening/:id", checkAdmin, checkId, async (req, res) => {
 
   /////get video Speaking
   router.get("/speaking",  async (req, res) => {
-    const speaking = await Speaking.find().select("-__v")
+    const speaking = await Speaking.find().select("-__v").populate("genres")
     res.json(speaking)
   })
-//Add Reading
+//Add Speaking
 router.post("/speaking", checkAdmin, validateBody(speakingAddJoi), async (req, res) => {
   try {
-    const {video } = req.body
+    const {video,genres } = req.body
 
     const speaking = new Speaking({
       video,
+      genres,
     })
     await speaking.save()
     res.json(speaking)
@@ -215,6 +216,20 @@ router.post("/speaking", checkAdmin, validateBody(speakingAddJoi), async (req, r
     res.status(500).send(error.message)
   }
 })
+////speaking Edit
+router.put("/speaking/:id", checkAdmin, checkId, validateBody(speakingEditJoi), async(req,res)=>{
+  try{
+      const { video, genres} = req.body
+      
+      const speaking =await Speaking.findByIdAndUpdate( req.params.id 
+          ,{$set: {video,genres }},{new:true})
+       
+      if(!speaking) return res.status(404).send("video speaking not found")
+      res.json(speaking)
+  }catch (error) {
+  res.status(500).send(error.message)
+}
+}) 
 router.delete("/speaking/:id", checkAdmin, checkId, async (req, res) => {
   try {
     const speaking = await Speaking.findByIdAndRemove(req.params.id)
@@ -225,4 +240,6 @@ router.delete("/speaking/:id", checkAdmin, checkId, async (req, res) => {
     res.status(500).send(error.message)
   }
 })
+
+
   module.exports = router

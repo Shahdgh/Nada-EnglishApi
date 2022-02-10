@@ -6,7 +6,12 @@ const wordSchema = new mongoose.Schema({
 word: String,
 image: String,
 translation: String,    
-
+liikes: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 })
 
 const  wordAddJoi = Joi.object({

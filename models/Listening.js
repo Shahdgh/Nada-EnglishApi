@@ -3,7 +3,12 @@ const Joi = require("joi")
 
 const listeningSchema = mongoose.Schema({
     video: String,
-  
+    likess: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+      },
+    ],
 })
 
 const listeningAddJoi = Joi.object({

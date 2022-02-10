@@ -6,7 +6,7 @@ const Joi = require("joi")
 const JoiObjectId = require("joi-objectid")
 Joi.objectid = JoiObjectId(Joi)
 const admins = require("./routes/admins")
-
+const geners = require("./routes/genres")
 const users = require("./routes/users")
 
 mongoose
@@ -26,6 +26,8 @@ app.use(cors())
 
 app.use("/api/admins", admins)
 app.use("/api/users", users )
+app.use("/api/geners", geners )
+
 
 
 

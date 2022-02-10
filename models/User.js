@@ -8,8 +8,35 @@ lastName: String,
 email: String,
 avatar: String,
 claass:String,
-password: String,      
-
+password: String,  
+likes:[
+    {
+        type:mongoose.Types.ObjectId,
+      ref: "Speaking", 
+   
+    },
+],   
+likess:[
+    {
+        type:mongoose.Types.ObjectId,
+      ref: "Listening", 
+   
+    },
+],  
+likees:[
+    {
+        type:mongoose.Types.ObjectId,
+      ref: "Reading", 
+   
+    },
+],
+liikes:[
+    {
+        type:mongoose.Types.ObjectId,
+      ref: "Word", 
+   
+    },
+],
 })
 //////User SIGN AND LOGIN
 const  signupJoi = Joi.object({
