@@ -7,8 +7,8 @@ const checkAdmin = require("../middleware/checkAdmin")
 const validateBody = require("../middleware/validateBody")
 const checkId = require("../middleware/checkId")
 const { Word ,wordAddJoi,wordEditJoi} = require("../models/Word")
-const { Listening,listeningAddJoi } = require("../models/Listening")
-const { Reading,readingAddJoi } = require("../models/Reading")
+const { Listening,listeningAddJoi,listeningEditJoi } = require("../models/Listening")
+const { Reading,readingAddJoi,readingEditoi } = require("../models/Reading")
 const { Speaking,speakingAddJoi,speakingEditJoi } = require("../models/Speaking")
 
 ///Signup admin
@@ -57,18 +57,19 @@ router.post("/login", validateBody(loginJoi), async (req, res) => {
 
 /////get Word
 router.get("/words",  async (req, res) => {
-    const word = await Word.find().select("-__v")
+    const word = await Word.find().select("-__v").populate("genres")
     res.json(word)
   })
   //Add Ingredients
   router.post("/words", checkAdmin, validateBody(wordAddJoi), async (req, res) => {
     try {
-      const { word, image, translation } = req.body
+      const { word, image, translation ,genres} = req.body
   
       const words = new Word({
         word, 
         image,
-         translation 
+         translation ,
+         genres,
       })
       await words.save()
       res.json(words)
@@ -79,11 +80,11 @@ router.get("/words",  async (req, res) => {
   ///Edit word
   router.put("/words/:id", checkAdmin, checkId, validateBody(wordEditJoi), async (req, res) => {
     try {
-        const { word, image, translation } = req.body
+        const { word, image, translation ,genres} = req.body
   
       const words = await Word.findByIdAndUpdate(
         req.params.id,
-        { $set: { word, image, translation } },
+        { $set: { word, image, translation,genres } },
         { new: true }
       )
   
@@ -108,47 +109,48 @@ router.get("/words",  async (req, res) => {
   })
   
   /////get video listing
-router.get("/listening",  async (req, res) => {
-  const listening = await Listening.find().select("-__v")
-  res.json(listening)
-})
+// router.get("/listening",  async (req, res) => {
+//   const listening = await Listening.find().select("-__v")
+//   res.json(listening)
+// })
 //Add listening
-router.post("/listening", checkAdmin, validateBody(listeningAddJoi), async (req, res) => {
-  try {
-    const {video } = req.body
+// router.post("/listening", checkAdmin, validateBody(listeningAddJoi), async (req, res) => {
+//   try {
+//     const {video } = req.body
 
-    const listening = new Listening({
-      video,
-    })
-    await listening.save()
-    res.json(listening)
-  } catch (error) {
-    res.status(500).send(error.message)
-  }
-})
-router.delete("/listening/:id", checkAdmin, checkId, async (req, res) => {
-  try {
-    const listenings = await Listening.findByIdAndRemove(req.params.id)
-    if (!listenings) return res.status(404).send("Listening video is not Found")
+//     const listening = new Listening({
+//       video,
+//     })
+//     await listening.save()
+//     res.json(listening)
+//   } catch (error) {
+//     res.status(500).send(error.message)
+//   }
+// })
+// router.delete("/listening/:id", checkAdmin, checkId, async (req, res) => {
+//   try {
+//     const listenings = await Listening.findByIdAndRemove(req.params.id)
+//     if (!listenings) return res.status(404).send("Listening video is not Found")
 
-    res.json("video is removed")
-  } catch (error) {
-    res.status(500).send(error.message)
-  }
-})
+//     res.json("video is removed")
+//   } catch (error) {
+//     res.status(500).send(error.message)
+//   }
+// })
 
   /////get video listing
   router.get("/reading",  async (req, res) => {
-    const reading = await Reading.find().select("-__v")
+    const reading = await Reading.find().select("-__v").populate("genres")
     res.json(reading)
   })
 //Add Reading
 router.post("/reading", checkAdmin, validateBody(readingAddJoi), async (req, res) => {
   try {
-    const {video } = req.body
+    const {video,genres } = req.body
 
     const reading = new Reading({
       video,
+      genres,
     })
     await reading.save()
     res.json(reading)
@@ -156,6 +158,20 @@ router.post("/reading", checkAdmin, validateBody(readingAddJoi), async (req, res
     res.status(500).send(error.message)
   }
 })
+////Reading Edit
+router.put("/reading/:id", checkAdmin, checkId, validateBody(readingEditoi), async(req,res)=>{
+  try{
+      const { video, genres} = req.body
+      
+      const reading =await Reading.findByIdAndUpdate( req.params.id 
+          ,{$set: {video,genres }},{new:true})
+       
+      if(!reading) return res.status(404).send("video reading not found")
+      res.json(reading)
+  }catch (error) {
+  res.status(500).send(error.message)
+}
+}) 
 router.delete("/reading/:id", checkAdmin, checkId, async (req, res) => {
   try {
     const reading = await Reading.findByIdAndRemove(req.params.id)
@@ -168,16 +184,17 @@ router.delete("/reading/:id", checkAdmin, checkId, async (req, res) => {
 })
 /////get video listing
 router.get("/listening",  async (req, res) => {
-  const listening = await Listening.find().select("-__v")
+  const listening = await Listening.find().select("-__v").populate("genres")
   res.json(listening)
 })
 //Add listening
 router.post("/listening", checkAdmin, validateBody(listeningAddJoi), async (req, res) => {
   try {
-    const {video } = req.body
+    const {video,genres } = req.body
 
     const listening = new Listening({
       video,
+      genres,
     })
     await listening.save()
     res.json(listening)
@@ -185,6 +202,20 @@ router.post("/listening", checkAdmin, validateBody(listeningAddJoi), async (req,
     res.status(500).send(error.message)
   }
 })
+////Listening Edit
+router.put("/listening/:id", checkAdmin, checkId, validateBody(listeningEditJoi), async(req,res)=>{
+  try{
+      const { video, genres} = req.body
+      
+      const listening =await Listening.findByIdAndUpdate( req.params.id 
+          ,{$set: {video,genres }},{new:true})
+       
+      if(!listening) return res.status(404).send("video listening not found")
+      res.json(listening)
+  }catch (error) {
+  res.status(500).send(error.message)
+}
+}) 
 router.delete("/listening/:id", checkAdmin, checkId, async (req, res) => {
   try {
     const listenings = await Listening.findByIdAndRemove(req.params.id)
