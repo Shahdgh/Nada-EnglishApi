@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const validateBody = require("../middleware/validateBody")
+const nodemailer = require("nodemailer")
 const checkId = require("../middleware/checkId")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
@@ -36,19 +37,57 @@ router.post("/signup",validateBody(signupJoi), async (req, res) => {
         lastName,
         email,
         password: hash,
+        // emailVerified:false,
         claass,
         avatar,
        
       })
+      const transporter = nodemailer.createTransport({
+        service:"gmail",
+        port:587,
+        secure:false,
+        auth:{
+          user: process.env.SENDER_EMAIL,
+          pass:process.env.SENDER_PASSWORD,
+        },
+      })
+  
+      const token = jwt.sign({id: user._id }, process.env.JWT_SECRET_KEY,{expiresIn:"15d"})
+  
+      await transporter.sendMail({
+        from:` "Nada-English website" <${process.env.SENDER_EMAIL}`,
+        to:email, //list of receivers
+        subject:"Email verification", // Subject line
+        html: `Hello , please click on this link to verify your email.
+        <a href="https://nada-english-api.herokuapp.com/email_verified/${token}"> Verify email</a>`, //html body
+        
+      })
       await user.save()
-    delete user._doc.password
+      delete user._doc.password
+  
+      res.send("تم ارسال رسالة تحقق الى الأيميل")
+    //   await user.save()
+    // delete user._doc.password
 
-    res.json(user)
+    // res.json(user)
   } catch (error) {
     res.status(500).send(error.message)
   }
 })
-///////////LOGIN Companions
+router.get("/verify_email/:token", async (req,res)=>{
+  try{
+    const decryptedToken = jwt.verify(req.params.token, process.env.JWT_SECRET_KEY)
+    const userId = decryptedToken.id
+
+    const user = await User.findByIdAndUpdate(userId, {$set:{emailVerified:true}})
+    if (!user) return res.status(404).send("user not found")
+   
+    res.send("user verified")
+  }catch (error){
+    res.status(500).send(error.message)
+  }
+})
+///////////LOGIN 
 router.post("/login", validateBody(loginJoi), async (req, res) => {
     try {
       const { email, password } = req.body
@@ -59,6 +98,7 @@ router.post("/login", validateBody(loginJoi), async (req, res) => {
       const valid = await bcrypt.compare(password, user.password)
       if (!valid) return res.status(400).send(" password incorrect")
   
+      if(!user.emailVerified) return res.status(403).send("user not verified, please check your email")
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" })
       res.send(token)
     } catch (error) {

@@ -8,6 +8,10 @@ lastName: String,
 email: String,
 avatar: String,
 claass:String,
+emailVerified:{
+    type: Boolean,
+    default: false,
+},
 password: String,  
 likes:[
     {
