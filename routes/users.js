@@ -70,6 +70,7 @@ router.post("/signup",validateBody(signupJoi), async (req, res) => {
     // delete user._doc.password
 
     // res.json(user)
+    
   } catch (error) {
     res.status(500).send(error.message)
   }
