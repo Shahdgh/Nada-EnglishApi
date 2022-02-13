@@ -59,7 +59,7 @@ router.post("/signup",validateBody(signupJoi), async (req, res) => {
         to:email, //list of receivers
         subject:"Email verification", // Subject line
         html: `Hello , please click on this link to verify your email.
-        <a href="https://nada-english-api.herokuapp.com/email_verified/${token}"> Verify email</a>`, //html body
+        <a href="https://nada-english.herokuapp.com/email_verified/${token}"> Verify email</a>`, //html body
         
       })
       await user.save()
